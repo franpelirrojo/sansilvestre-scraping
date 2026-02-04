@@ -2,15 +2,17 @@ import scrapy
 import sys
 import json
 from scrapy.crawler import CrawlerProcess
+from dataclasses import dataclass
 
 settings_d = {
     "USER_AGENT": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Googlebot/2.1; +http://www.google.com/bot.html) Chrome/W.X.Y.Z Safari/537.36",
-    "LOG_LEVEL": "DEBUG",
-    "CONCURRENT_REQUESTS" : 200,
-    "CONCURRENT_REQUESTS_PER_DOMAIN" : 200,
-    "DOWNLOAD_DELAY" : 2,
+    "LOG_LEVEL": "INFO",
     "DOWNLOAD_TIMEOUT" : 5,
-    "COOKIES_ENABLED" : False
+    "COOKIES_ENABLED" : False,
+    'DOWNLOAD_DELAY': 0,
+    'CONCURRENT_ITEMS': 10,
+    'CONCURRENT_REQUESTS': 5,
+    'AUTOTHROTTLE_ENABLED': False
 }
 
 class SanSilvestreSp(scrapy.Spider):
@@ -19,7 +21,8 @@ class SanSilvestreSp(scrapy.Spider):
     def __init__(self, params, *args, **kwargs):
         super(SanSilvestreSp, self).__init__(*args, **kwargs)
         self.allowed_domains = params.get("allowed_domains")
-        self.start_urls = params.get("start_urls")
+        #self.start_urls = params.get("start_urls")
+        self.start_urls = ["https://sansilvestrecoruna.com/es/web/resultado/competicion-16683"]
         self.carrera_link = params.get("carrera_link")
         self.categoria_link = params.get("categoria_link")
         self.fields = params.get("fields")
@@ -30,32 +33,31 @@ class SanSilvestreSp(scrapy.Spider):
 
     def parse_eventos(self, response):
         url = response.url
-
-        if url in "competicion":
+        if "competicion" in url:
             yield response.follow(url, callback=self.parse_resultados)
         else:
-
             categorias_url = response.css(self.categoria_link).getall()
             categorias = response.css(self.fields['categoria']).getall()
-            for url, categoria in zip(categorias_url, categorias):
-                yield response.follow(url,
-                                      callback=self.parse_resultados,
-                                      cb_kwargs={"categoria" : categoria})
-
+             for url, categoria in zip(categorias_url, categorias):
+                 yield response.follow(url,
+                                       callback=self.parse_resultados,
+                                       cb_kwargs={"categoria" : categoria})
 
     def parse_resultados(self, response, categoria): 
-        item = {}
         campos = response.css(self.fields['campos']).getall()
         tupla = response.css(self.fields['tupla']).getall()
         pag = response.css(self.fields['pagination']).get()
         for i in range(0, len(tupla), len(campos)):
+            item = {}
             for k, campo in enumerate(campos): 
                 item[campo] = tupla[i+k]
-        item['categoría'] = categoria.strip()
-        yield item
+            item['categoria'] = categoria.strip()
+            yield item
 
-        if pag is not None:
-            yield response.follow(pag, callback=self.parse_resultados, cb_kwargs={"categoria" : categoria})
+
+        if pag: yield response.follow(pag,
+                                      callback=self.parse, 
+                                      cb_kwargs={"categoria" : categoria})
         
         
 
