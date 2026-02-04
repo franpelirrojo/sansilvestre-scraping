@@ -21,8 +21,7 @@ class SanSilvestreSp(scrapy.Spider):
     def __init__(self, params, *args, **kwargs):
         super(SanSilvestreSp, self).__init__(*args, **kwargs)
         self.allowed_domains = params.get("allowed_domains")
-        #self.start_urls = params.get("start_urls")
-        self.start_urls = ["https://sansilvestrecoruna.com/es/web/resultado/competicion-16683"]
+        self.start_urls = params.get("start_urls")
         self.carrera_link = params.get("carrera_link")
         self.categoria_link = params.get("categoria_link")
         self.fields = params.get("fields")
