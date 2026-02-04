@@ -55,7 +55,7 @@ class SanSilvestreSp(scrapy.Spider):
 
 
         if pag: yield response.follow(pag,
-                                      callback=self.parse, 
+                                      callback=self.parse_resultados, 
                                       cb_kwargs={"categoria" : categoria})
         
         
