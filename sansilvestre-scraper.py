@@ -48,8 +48,6 @@ class SanSilvestreSp(scrapy.Spider):
         campos = response.css(self.fields['campos']).getall()
         tupla = response.css(self.fields['tupla']).getall()
         pag = response.css(self.fields['pagination']).get()
-        print(len(tupla))
-        print(len(campos))
         for i in range(0, len(tupla), len(campos)):
             for k, campo in enumerate(campos): 
                 item[campo] = tupla[i+k]
