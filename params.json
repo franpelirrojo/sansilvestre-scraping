@@ -1,0 +1,17 @@
+{
+    "allowed_domains": ["www.sansilvestrecoruna.com", "sansilvestrecoruna.com"],
+    "start_urls": ["https://sansilvestrecoruna.com/es/web/resultado/"],
+    "carrera_link": "body>div.container.resultados div.row>div>a::attr(href)",
+    "categoria_link": "body>div.container.resultados ul.row>li>a::attr(href)",
+    "fields": {
+        "categoria": "body>div.container.resultados ul.row>li>a::text",
+        "campos": "table>thead>tr>th>a::text",
+        "tupla": "table>tbody>tr>td:not(.seleccionar)::text, table>tbody>tr>td:not(.seleccionar)>a::text, table>tbody>tr>td:not(.seleccionar)>span",
+        "pagination": "ul.pagination>li.next>a::attr(href)"
+    },
+    "feeds" : {
+        "output_file": "sansilvestre.json",
+        "format" : "json",
+        "overwrite" : true
+    }
+}
