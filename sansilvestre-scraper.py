@@ -37,10 +37,10 @@ class SanSilvestreSp(scrapy.Spider):
         else:
             categorias_url = response.css(self.categoria_link).getall()
             categorias = response.css(self.fields['categoria']).getall()
-             for url, categoria in zip(categorias_url, categorias):
-                 yield response.follow(url,
-                                       callback=self.parse_resultados,
-                                       cb_kwargs={"categoria" : categoria})
+            for url, categoria in zip(categorias_url, categorias):
+                yield response.follow(url, 
+                                      callback=self.parse_resultados,
+                                      cb_kwargs={"categoria" : categoria})
 
     def parse_resultados(self, response, categoria): 
         campos = response.css(self.fields['campos']).getall()
