@@ -15,7 +15,8 @@ settings_d = {
     'DOWNLOAD_DELAY': 0,
     'CONCURRENT_ITEMS': 25,
     'CONCURRENT_REQUESTS': 12,
-    'AUTOTHROTTLE_ENABLED': False
+    'AUTOTHROTTLE_ENABLED': False,
+    "FEED_EXPORT_ENCODING": "utf-8"
 }
 
 def clean_text(value):
