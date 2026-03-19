@@ -2,6 +2,8 @@ import scrapy
 import re
 import sys
 import json
+import html
+import re
 from scrapy.crawler import CrawlerProcess
 from dataclasses import dataclass
 
@@ -15,6 +17,13 @@ settings_d = {
     'CONCURRENT_REQUESTS': 12,
     'AUTOTHROTTLE_ENABLED': False
 }
+
+def clean_text(value):
+    value = html.unescape(value)
+    value = value.replace("\xa0", " ")
+    value = value.replace("\r", " ").replace("\n", " ").replace("\t", " ")
+    value = re.sub(r"\s+", " ", value).strip()
+    return value
 
 class SanSilvestreSp(scrapy.Spider):
     name = "SanSilvestreSp"
@@ -38,9 +47,7 @@ class SanSilvestreSp(scrapy.Spider):
     def parse_eventos(self, response, **kwargs):
         item = kwargs.copy()
         if "competicion" in (url := response.url):
-            yield response.follow(url,
-                                  callback=self.parse_resultados,
-                                  cb_kwargs=item)
+            yield from self.parse_resultados(response, **item)
         else:
             categorias_url = response.css(self.selectores["categoria_link"]).getall()
             categorias = response.css(self.selectores['categoria']).getall()
@@ -75,11 +82,12 @@ class SanSilvestreSp(scrapy.Spider):
         club = response.xpath(self.selectores['club']).get()
         campos = response.css(self.selectores['tabla_campos']).getall()
         valores = response.css(self.selectores['tabla_valores']).getall()
-        campos = [clean for x in campos if (clean := re.sub(r'\s+', '', x))]
-        tupla = [clean for x in valores if (clean := re.sub(r'\s+', '', x))]
+
+        campos = [clean_text(x) for x in campos]
+        tupla = [clean_text(x) for x in valores]
 
         item = kwargs.copy()
-        if club: item['club'] = club.replace('\n', '')
+        if club: item['club'] = clean_text(club) 
 
         controles = []
         if campos:
@@ -87,15 +95,14 @@ class SanSilvestreSp(scrapy.Spider):
             for tupla in tuplas:
                 control = {}
                 for campo, valor in zip(campos, tupla): 
+                    campo = clean_text(campo)
+                    valor = clean_text(valor)
                     control[campo] = valor
                 controles.append(control)
             item['controles'] = controles
         else:
             valores = response.css(self.selectores['virtual_valores']).getall()
             if valores: controles.append({valores[i] for i in range(0, 2)})
-
-        yield item
-
 
     @classmethod
     def from_crawler(cls, crawler, *args, **kwargs): #TODO:revisar entrada de esto
