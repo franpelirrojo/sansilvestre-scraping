@@ -84,7 +84,7 @@ class SanSilvestreSp(scrapy.Spider):
         valores = response.css(self.selectores['tabla_valores']).getall()
 
         campos = [clean_text(x) for x in campos]
-        tupla = [clean_text(x) for x in valores]
+        valores = list(filter(None , [clean_text(x) for x in valores]))
 
         item = kwargs.copy()
         if club: item['club'] = clean_text(club) 
@@ -103,6 +103,8 @@ class SanSilvestreSp(scrapy.Spider):
         else:
             valores = response.css(self.selectores['virtual_valores']).getall()
             if valores: controles.append({valores[i] for i in range(0, 2)})
+
+        print(item)
 
     @classmethod
     def from_crawler(cls, crawler, *args, **kwargs): #TODO:revisar entrada de esto
