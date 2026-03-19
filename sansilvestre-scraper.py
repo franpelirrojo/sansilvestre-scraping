@@ -104,7 +104,7 @@ class SanSilvestreSp(scrapy.Spider):
             valores = response.css(self.selectores['virtual_valores']).getall()
             if valores: controles.append({valores[i] for i in range(0, 2)})
 
-        print(item)
+        yield item
 
     @classmethod
     def from_crawler(cls, crawler, *args, **kwargs): #TODO:revisar entrada de esto
