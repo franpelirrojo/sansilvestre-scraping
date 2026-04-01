@@ -1,0 +1,10 @@
+services:
+  db:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./db/san_silvestre_db.sql:/docker-entrypoint-initdb.d/san_silvestre_db.sql
