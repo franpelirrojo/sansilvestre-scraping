@@ -1,6 +1,6 @@
 DROP DATABASE IF EXISTS sansilvestre_db;
 DROP USER IF EXISTS sansilvestre_user;
-CREATE USER sansilvestre_user;
+CREATE USER sansilvestre_user WITH PASSWORD 'secret';
 CREATE DATABASE sansilvestre_db;
 GRANT ALL PRIVILEGES ON DATABASE sansilvestre_db TO sansilvestre_user;
 
@@ -46,3 +46,7 @@ corredor_id INT REFERENCES corredor,
 resultado_id INT REFERENCES resultado,
 PRIMARY KEY(corredor_id, resultado_id)
 );
+
+GRANT USAGE ON SCHEMA public TO sansilvestre_user;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO sansilvestre_user;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO sansilvestre_user;
